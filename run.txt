@@ -1,0 +1,11 @@
+ansible localhost -m user -a 'name=ansible-worker shell=/bin/bash create_home=yes' --become
+ansible localhost -m apt -a 'name=git state=present update_cache=yes' --become
+ansible localhost -m copy -a 'src=ssh_keys/ dest=/home/ansible-worker/.ssh/ owner=ansible-worker group=ansible-worker mode=0600' --become
+ansible localhost -m git -a 'repo=https://github.com/iphilka/stud-template.git dest=/home/ansible-worker/www/ version=HEAD key_file=/home/ansible-worker/.ssh/id_rsa accept_hostkey=yes' --become --become-user=ansible-worker
+ansible localhost -m template -a 'src=templates/index.html.j2 dest=/home/ansible-worker/www/index.html' --become
+ansible localhost -m apt -a 'name=nginx state=present update_cache=yes' --become
+ansible localhost -m template -a 'src=templates/ansible.iphilka.ru.conf.j2 dest=/etc/nginx/sites-available/ansible.iphilka.ru.conf' --become
+ansible localhost -m file -a 'src=/etc/nginx/sites-available/ansible.iphilka.ru.conf dest=/etc/nginx/sites-enabled/ansible.iphilka.ru.conf state=link' --become
+ansible localhost -m file -a 'path=/home/ansible-worker/www/ state=directory owner=ansible-worker group=ansible-worker recurse=yes' --become
+ansible localhost -m service -a 'name=nginx state=reloaded' --become
+ansible localhost -m service -a 'name=ssh state=restarted' --become

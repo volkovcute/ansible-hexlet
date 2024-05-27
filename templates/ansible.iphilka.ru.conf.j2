@@ -1,0 +1,12 @@
+server {
+    listen 80;
+    server_name ansible.iphilka.ru;
+
+    location / {
+        root /home/ansible-worker/www;
+        index index.html;
+    }
+
+    error_log /var/log/nginx/ansible.iphilka.ru_error.log;
+    access_log /var/log/nginx/ansible.iphilka.ru_access.log;
+}
